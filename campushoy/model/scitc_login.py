@@ -253,31 +253,36 @@ class sql():
 		
 if __name__ == '__main__':
 	# scitc_login = login()
-	# mysql = sql()
+	mysql = sql()
 	# sql = """
 	# 	CREATE TABLE user (
     #     account  CHAR(20) NOT NULL,
     #     password  CHAR(20),
+	# 	email VARCHAR(20),
 	# 	name CHAR(10),
     #     temperature CHAR(4),  
     #     address VARCHAR(50),
 	# 	building CHAR(2),
     #     room CHAR(4),
-	# 	position VARCHAR(20))"""
+	# 	longitude VARCHAR(40),
+	# 	latitude VARCHAR(40))"""
 	# mysql.cursor.execute(sql)
 	# sql = 'show columns from user;'
 	# mysql.cursor.execute(sql)
 	# res = mysql.cursor.fetchall()
 	# print(res)
 
-	# sql = "INSERT INTO user(account, password, name, temperature, address, building, room, position) VALUES (%s, %s, %s, %s, %s, %s, %s,);"
-	# mysql.cursor.execute(sql)
+	# sql = "INSERT INTO USER(account, \
+	# 	password, email, name, temperature, \
+	# 		address, building, room, longitude, \
+	# 			latitude) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+	# mysql.cursor.execute(sql,['18302059','010819','676770750@qq.com',"杨源斌",'36.5','四川信息职业技术学院','4','4127','test1','test2'])
 	# mysql.db.commit()
 
-	# sql = "SELECT * FROM user;"
-	# mysql.cursor.execute(sql)
-	# res = mysql.cursor.fetchall()
-	# print(res)
+	sql = "SELECT * FROM user WHERE account=%s;"
+	mysql.cursor.execute(sql,['18302059'])
+	res = mysql.cursor.fetchone()
+	print(res)
 
-	oss = oss2uploader()
-	oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')
+	# oss = oss2uploader()
+	# oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')

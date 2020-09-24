@@ -150,6 +150,7 @@ class login():
 
 		html = BeautifulSoup(res.text,'html.parser')
 		new_url = html.find_all('a')[0].get('href') #提取带ticket的url，以获取acw_tc 以及MOD_AUTH_CAS
+		print(new_url)
 		if new_url == '#':
 			print('login fail, please check your account and password')
 			return False
@@ -251,7 +252,7 @@ class sql():
 		self.cursor = self.db.cursor()
 		
 if __name__ == '__main__':
-	# scitc_login = login()
+	scitc_login = login()
 	# mysql = sql()
 	# sql = """
 	# 	CREATE TABLE user (
@@ -279,4 +280,4 @@ if __name__ == '__main__':
 	# print(res)
 
 	oss = oss2uploader()
-	oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')
+	# oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')

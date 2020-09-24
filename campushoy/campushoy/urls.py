@@ -16,8 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from views import scitc_cam_login
+from views import user
 
 urlpatterns = [
     path('', scitc_cam_login.mylogin),
+    path('user/', user.user_info,name='user'),
+    path('user/user_update', user.user_update),
+    path('user/img_upload', user.user_img_upload),
+    path('logout/',user.user_logout,name='logout'),
     path('admin/', admin.site.urls),
 ]
