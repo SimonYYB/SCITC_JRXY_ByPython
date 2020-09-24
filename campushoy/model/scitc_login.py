@@ -115,7 +115,7 @@ class login():
 		self.cookies = requests.cookies.RequestsCookieJar()
 		self.passwd = ''
 
-		self.do_login(username, password) #进行登录
+		# self.do_login(username, password) #进行登录
 		# self.get_jrxy_token() #获取今日校园的session token #未完成
 	
 	def get_jrxy_token(self, MOD_AUTH_CAS):
@@ -174,6 +174,7 @@ class login():
 """
 		print("Get MOD_AUTH_CAS:")
 		print(info.format(MOD_AUTH_CAS=MOD_AUTH_CAS,acw_tc=acw_tc))
+		return MOD_AUTH_CAS
 	
 
 	def get_param(self):

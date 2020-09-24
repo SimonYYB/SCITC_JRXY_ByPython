@@ -1,0 +1,33 @@
+{
+    "code":"0",
+    "message":"SUCCESS",
+    "datas":{
+        "dayInMonth":null,
+        "codeRcvdTasks":[],
+        "signedTasks":[],
+        "unSignedTasks":[
+            {
+                "stuSignWid":"295329",
+                "signInstanceWid":"2016",
+                "signWid":"267694",
+                "signRate":"1",
+                "taskType":null,
+                "taskName":"周三查寝",
+                "senderUserName":"信息工程系(刘长富)",
+                "signStatus":"0",
+                "isMalposition":"0",
+                "isLeave":"0",
+                "leavePcUrl":null,
+                "leaveMobileUrl":null,
+                "currentTime":"2020-09-23 20:25",
+                "singleTaskBeginTime":"2020-09-23 21:00",
+                "singleTaskEndTime":"2020-09-23 22:30",
+                "rateSignDate":"2020-09-23 (周三)",
+                "rateTaskBeginTime":"21:00",
+                "rateTaskEndTime":"22:30",
+                "late":0
+            }
+        ],
+        "leaveTasks":[]
+    }
+}
