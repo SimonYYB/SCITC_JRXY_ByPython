@@ -1,0 +1,3 @@
+﻿##GOOD PLAY##
+如果今日校园查寝失败，请确认密码是否正确，或是多次登录失败后会产生验证码，请在http://authserver.scitc.com.cn/authserver/login 消除验证码
+请确认你上传了照片至服务器，否则会上传默认图片

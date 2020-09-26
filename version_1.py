@@ -9,6 +9,11 @@ import base64
 import re
 import MySQLdb
 import oss2
+import os
+import pyDes
+import base64
+import uuid
+from datetime import datetime, timedelta, timezone
 """
 project:	今日校园自动签到实现 By Python
 author:		SCITC NIX_45
@@ -76,6 +81,25 @@ def randomString(le):
 username = "18305038"
 password = "215756"
 salt = "2wxQA9X1kJQkuncK"
+headers = {
+    'Accept': 'application/json, text/plain, */*',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 5.1.1; vmos Build/LMY48G; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36  cpdaily/8.2.2 wisedu/8.2.2',
+    'content-type': 'application/json',
+    'Accept-Encoding': 'gzip,deflate',
+    'Accept-Language': 'zh-CN,en-US;q=0.8',
+    'Content-Type': 'application/json;charset=UTF-8'
+}
+
+submitHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 5.1.1; MI 9 Build/NMF26X; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 okhttp/3.8.1',
+    'CpdailyStandAlone': '0',
+    'Cpdaily-Extension': 'RADCSRminiMgqqlqqEeUIlGO1ivakMDZTJtYYN8fwbnuQ2vxpCSovbApowOc hQFZE4yLOkuCm0dSLgpTi27Z9JO5pnFLmjkMt6M3efLkTVuhv9qrhJ6Y4YSn xepXhPCDK8aX9PslM+hgsRPqz8JEA8IDK/F7Bw93AP1S/1Dg6XSdX/EjSb1w cbFBjlmeC6GvUSELsGD1B6DMIQbTYuGRpnnd34DiICWuko0pou0yAuHOSLSY QHQzrcGoQV/VFulz',
+    'extension': '1',
+    'Content-Type': 'application/json; charset=utf-8',
+    'Host': 'host',
+    'Connection': 'Keep-Alive',
+    'Accept-Encoding': 'gzip'
+}
 
 #login_post SCITC认证服务器的post请求包
 login_post = """
@@ -240,7 +264,6 @@ class oss2uploader():
 			data = f.read()
 		bucket.put_object(key=filename, headers={'x-oss-security-token': securityToken}, data=data)
 		res = bucket.sign_url('PUT', filename, 60)
-		print(filename)
 		return filename
 
 
@@ -251,33 +274,116 @@ class sql():
 		self.db = MySQLdb.connect("120.78.162.170", "yyb", "playground", "scitc_jrxy", charset='utf8' )
 		self.cursor = self.db.cursor()
 		
+
+
+
+def get_user_info(mysql):
+	sql_order = "SELECT * FROM user;"
+	mysql.cursor.execute(sql_order)
+	res = mysql.cursor.fetchall()
+	return res
+
+def query_sign(user):
+	url = "https://scitc.cpdaily.com/wec-counselor-attendance-apps/student/attendance/getStuAttendacesInOneDay"
+	cookies = {'MOD_AUTH_CAS':user['token']}
+	requests.packages.urllib3.disable_warnings()
+	res = requests.post(url=url, headers=headers, cookies=cookies, data=json.dumps({}), verify=False)
+	print(res.json())
+	if res.json()['datas']['signedTasks']:
+		return {}
+	if not res.json()['datas']['unSignedTasks']:
+		return {}
+	signInstanceWid = res.json()['datas']['unSignedTasks'][0]['signInstanceWid']
+	stuSignWid = res.json()['datas']['unSignedTasks'][0]['signInstanceWid']
+	rateTaskBeginTime = res.json()['datas']['unSignedTasks'][0]['rateTaskBeginTime']
+	return {'signInstanceWid': signInstanceWid, 'stuSignWid': stuSignWid,'rateTaskBeginTime': rateTaskBeginTime}
+
+def fillform_sign():
+	pass
+
+def upload_user_image(user):
+	dirpath = 'campushoy/static/img/' + user['account'] + '/'
+	if not os.path.exists(dirpath):
+		imgpath = 'campushoy/static/img/yyb.ico'
+	else:
+		allimg = os.listdir(dirpath)
+		manyimg = len(allimg)
+		if not manyimg:
+			imgpath = 'campushoy/static/img/yyb.ico'
+		else:
+			choose = random.randint(0,manyimg-1)
+			imgpath = dirpath + allimg[choose]
+	targetname = oss.uploadImage(user['token'],imgpath)
+	return targetname
+	
+def submitsign(signInstanceWid,img_url,user):
+	url = "https://scitc.cpdaily.com/wec-counselor-attendance-apps/student/attendance/submitSign"
+	cookies = {'MOD_AUTH_CAS':user['token']}
+	# submitHeaders['Cpdaily-Extension'] = header_encrypt(json.dumps(extension))
+	submitHeaders['Cpdaily-Extension'] = "7Q881vmOiX5P8Zqo42iY1D1S9CeBBvegB87cm+d2eLEtjwDmLxBqfmA87jiR FJNbjbRMm9WirZnCN4xJ5NJOhNLprSR2zZ9K9jB4UfzCKTWZI7meMmP12pcW pdIZqE5lIj2M1EZ08eriKfMykiOHdrtTBMBaCMy9F8P3Z7J0qxS7KAG7KwBA RkM6UnoZvlK0i5X+9cRZ1yiLBIjnJAoXQ33qinUcJWY2Sbwoa5Oz5FOoDYwY ifZihXDjj34mb5SyHR+DjZlxnrRocvQqmTRneQ=="
+	print("Cpdaily-Extension:",submitHeaders['Cpdaily-Extension'])
+	requests.packages.urllib3.disable_warnings()
+	res = requests.post(url=url, headers=submitHeaders, cookies=cookies, data=json.dumps({"signInstanceWid": signInstanceWid, "longitude": user['longitude'], "latitude": user['latitude'],
+         "isMalposition": 0, "abnormalReason": "", "signPhotoUrl": img_url, "position": user['address'],
+         "qrUuid": ""}), verify=False)
+	msg = res.json()['message']
+	return msg
+
+
+def signmain():
+	users_data = get_user_info(mysql)
+	colums = ['account', 'password', 'email', 'name', 'temperature', 'address', 'building', 'room', 'longitude', 'latitude', 'token']
+	nums = 0
+	for i in users_data:
+		user = {}
+		for x,y in zip(colums,i):
+			user[x] = y
+		
+		filename = upload_user_image(user)
+		print(filename)
+		param = query_sign(user)
+		if param:
+			now = datetime.now().strftime("%H:%M")
+			print('query form need to sign')
+			if now < param['rateTaskBeginTime']:
+				print('too early')
+				continue
+			filename = upload_user_image(user)
+			img_url = "https://wecres.cpdaily.com/" + filename
+			ret = submitsign(param['signInstanceWid'],img_url,user)
+			if ret == 'SUCCESS':
+				print('提交成功')
+				sendmessage(user['email'],'ret_success.txt')
+			elif ret == '该收集已填写无需再次填写':
+				sendmessage(user['email'],'ret_success.txt')
+			else:
+				print("用户%s提交失败，错误为:%s"%(user['account'],message))
+				sendMessage(user['email'],'ret_fail.txt')
+		else:
+			print('not found form that need sign')
+	print('查寝已全部完成')
+		
+
+
+
 if __name__ == '__main__':
-	scitc_login = login()
-	# mysql = sql()
-	# sql = """
-	# 	CREATE TABLE user (
-    #     account  CHAR(20) NOT NULL,
-    #     password  CHAR(20),
-	# 	name CHAR(10),
-    #     temperature CHAR(4),  
-    #     address VARCHAR(50),
-	# 	building CHAR(2),
-    #     room CHAR(4),
-	# 	position VARCHAR(20))"""
+	# scitc_login = login()
+	mysql = sql()
+
+	#查询表结构
 	# mysql.cursor.execute(sql)
 	# sql = 'show columns from user;'
 	# mysql.cursor.execute(sql)
 	# res = mysql.cursor.fetchall()
 	# print(res)
 
-	# sql = "INSERT INTO user(account, password, name, temperature, address, building, room, position) VALUES (%s, %s, %s, %s, %s, %s, %s,);"
-	# mysql.cursor.execute(sql)
-	# mysql.db.commit()
 
+	#查询数据库所有用户信息
 	# sql = "SELECT * FROM user;"
 	# mysql.cursor.execute(sql)
 	# res = mysql.cursor.fetchall()
 	# print(res)
 
 	oss = oss2uploader()
-	# oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')
+
+	signmain()

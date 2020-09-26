@@ -9,6 +9,7 @@ import base64
 import re
 import MySQLdb
 import oss2
+from apscheduler.schedulers.background import BackgroundScheduler
 """
 project:	今日校园自动签到实现 By Python
 author:		SCITC NIX_45
@@ -228,6 +229,15 @@ class oss2uploader():
 		requests.packages.urllib3.disable_warnings()
 		res = requests.post(url=url, headers=headers, cookies=cookies, data=json.dumps({}), verify=False, allow_redirects=False)
 		auth = res.json().get('datas')
+		if not auth:
+			MOD_AUTH_CAS = sam_login.do_login(user['account'],user['password'])
+			cookies = {'MOD_AUTH_CAS':MOD_AUTH_CAS}
+			sql_order = "UPDATE user SET token=(%s) WHERE account=(%s);"
+			mysql.cursor.execute(sql_order,[MOD_AUTH_CAS,user['account']])
+			mysql.db.commit()
+			requests.packages.urllib3.disable_warnings()
+			res = requests.post(url=url, headers=headers, cookies=cookies, data=json.dumps({}), verify=False, allow_redirects=False)
+			auth = res.json().get('datas')
 		accessKeyId = auth['accessKeyId']
 		accessKeySecret = auth['accessKeySecret']
 		securityToken = auth['securityToken']
@@ -248,6 +258,12 @@ class oss2uploader():
 
 class sql():
 	def __init__(self):
+		self.db = MySQLdb.connect("120.78.162.170", "yyb", "playground", "scitc_jrxy", charset='utf8' )
+		self.cursor = self.db.cursor()
+		schedudler.add_job(conn,'interval',hour=2)
+		schedudler.start()
+
+	def conn(self):
 		self.db = MySQLdb.connect("120.78.162.170", "yyb", "playground", "scitc_jrxy", charset='utf8' )
 		self.cursor = self.db.cursor()
 		
@@ -279,10 +295,10 @@ if __name__ == '__main__':
 	# mysql.cursor.execute(sql,['18302059','010819','676770750@qq.com',"杨源斌",'36.5','四川信息职业技术学院','4','4127','test1','test2'])
 	# mysql.db.commit()
 
-	sql = "SELECT * FROM user WHERE account=%s;"
-	mysql.cursor.execute(sql,['18302059'])
-	res = mysql.cursor.fetchone()
-	print(res)
+	# sql = "SELECT * FROM user WHERE account=%s;"
+	# mysql.cursor.execute(sql,['18302059'])
+	# res = mysql.cursor.fetchone()
+	# print(res)
 
-	# oss = oss2uploader()
-	# oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')
+	oss = oss2uploader()
+	oss.uploadImage('ST-983328-PfcUeCy9QtDHb5TE4hMz1600872449828-BTff-cas',r'C:\Users\WORKSTATION\Pictures\iu.jpg')

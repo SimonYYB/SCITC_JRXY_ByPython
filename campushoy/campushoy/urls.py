@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from views import scitc_cam_login
 from views import user
+from model import schedule
 
 urlpatterns = [
     path('', scitc_cam_login.mylogin),
