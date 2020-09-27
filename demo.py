@@ -71,9 +71,6 @@ def randomString(le):
 		retStr += aes_chars[math.floor(random.random() * aes_chars_len)]
 	return retStr
 
-username = "18305038"
-password = "215756"
-salt = "2wxQA9X1kJQkuncK"
 
 #login_post SCITC认证服务器的post请求包
 login_post = """

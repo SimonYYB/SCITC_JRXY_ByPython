@@ -183,7 +183,7 @@ class login():
 		self.cookies = requests.utils.dict_from_cookiejar(r.cookies)
 		soup = BeautifulSoup(r.text,'html.parser')
 		pattern = r'var pwdDefaultEncryptSalt = "(.*)";'
-		self.salt = str(re.search(pattern,soup.text))[-20:-4]
+		self.salt = str(re.search(pattern,str(soup)))[-20:-4]
 		self.lt = soup.select('input[name="lt"]')[0].get('value')
 		self.execution = soup.select('input[name="execution"]')[0].get('value')
 		info = """
