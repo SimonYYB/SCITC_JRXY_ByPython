@@ -9,7 +9,7 @@ class mysendmail():
         self.subject = "今日校园查寝结果-" #主题
         self.sender = self.get_sender() #发送邮箱
         self.content = self.get_content() #内容
-        self.password = "fnabhvtzqkipbahg" #smtp的密码
+        self.password = "" #smtp的密码
         self.message = MIMEText(self.content, "plain", "utf-8")
         self.message['From'] = self.sender
         # self.message['Subject'] = self.subject
@@ -22,13 +22,13 @@ class mysendmail():
     
     def get_sender(self):
         sender = ""
-        with open("model/config/sender.txt","r",encoding="utf-8") as file:
+        with open("config/sender.txt","r",encoding="utf-8") as file:
             sender = file.read()
         return sender
 
     def get_content(self):
         content = ""
-        with open("model/config/content.txt","r",encoding="utf-8") as file:
+        with open("config/content.txt","r",encoding="utf-8") as file:
             content = file.read()
         return content
 

@@ -258,13 +258,14 @@ class oss2uploader():
 
 class sql():
 	def __init__(self):
-		self.db = MySQLdb.connect("120.78.162.170", "yyb", "playground", "scitc_jrxy", charset='utf8' )
+		self.db = MySQLdb.connect("", "yyb", "", "scitc_jrxy", charset='utf8' )
 		self.cursor = self.db.cursor()
-		schedudler.add_job(conn,'interval',hour=2)
+		schedudler = BackgroundScheduler()
+		schedudler.add_job(self.conn,'interval',seconds=7200)
 		schedudler.start()
 
 	def conn(self):
-		self.db = MySQLdb.connect("120.78.162.170", "yyb", "playground", "scitc_jrxy", charset='utf8' )
+		self.db = MySQLdb.connect("", "yyb", "", "scitc_jrxy", charset='utf8' )
 		self.cursor = self.db.cursor()
 		
 if __name__ == '__main__':

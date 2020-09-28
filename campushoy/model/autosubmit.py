@@ -245,11 +245,12 @@ def collect_submit(user,formWid,address,collectWid,schoolTaskWid,form):
     ret = r.json()['message']
     return ret
 
+sendmessage = mysendmail()
+
 def collect_main():
     users_data = get_user_info(mysql)
     colums = ['account', 'password', 'email', 'name', 'temperature', 'address', 'building', 'room', 'longitude', 'latitude', 'token']
     for i in users_data:
-        print(i)
         user = {}
         flag = 0
         for x,y in zip(colums,i):
@@ -257,18 +258,27 @@ def collect_main():
                 flag = 1
             user[x] = y
         if flag:
-            print('用户信息不完整')
             continue
-        print("当前用户:",user['account'])
         param = collect_query(user)
-        if not param:
-            print('not query form need to submit')
-            continue
-        form = collect_fill(user,param['form'])
-        ret = collect_submit(user, param['formWid'], user['address'], param['collectWid'],param['schoolTaskWid'], form)
-        print(ret)
+        if param:
+            print('query form need submit')
+            form = collect_fill(param['form'])
+            ret = collect_submit(user, prama['formWid'], user['address'], prama['collectWid'],prama['schoolTaskWid'], form)
+            # print(ret)
+            if ret == 'SUCCESS':
+                print('提交成功')
+                if user['email']:
+                    sendmessage.send(True,user['email'])
+            elif ret == '该收集已填写无需再次填写':
+                print('该收集已填写无需再次填写')
+            else:
+                print("用户%s提交失败，错误为:%s"%(user['account'],ret))
+                if user['email']:
+                    sendmessage.send(False,user['email'])
+        else:
+            print('not found form that need sign')
+    print('信息收集已全部完成')
 
-sendmessage = mysendmail()
 
 def signmain():
 	users_data = get_user_info(mysql)
@@ -304,7 +314,7 @@ def signmain():
 				if user['email']:
 					sendmessage.send(True,user['email'])
 			else:
-				print("用户%s提交失败，错误为:%s"%(user['account'],message))
+				print("用户%s提交失败，错误为:%s"%(user['account'],ret))
 				if user['email']:
 					sendmessage.send(False,user['email'])
 		else:

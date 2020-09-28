@@ -132,9 +132,21 @@ def collect_main():
         if flag:
             continue
         param = collect_query(user)
-        if not param:
-            print('not query form need submit')
-            continue
-        form = collect_fill(param['form'])
-        ret = collect_submit(user, prama['formWid'], user['address'], prama['collectWid'],prama['schoolTaskWid'], form)
-        print(ret)
+        if param:
+            print('query form need submit')
+            form = collect_fill(param['form'])
+            ret = collect_submit(user, prama['formWid'], user['address'], prama['collectWid'],prama['schoolTaskWid'], form)
+            # print(ret)
+            if ret == 'SUCCESS':
+                print('提交成功')
+                if user['email']:
+                    sendmessage.send(True,user['email'])
+            elif ret == '该收集已填写无需再次填写':
+                print('该收集已填写无需再次填写')
+            else:
+                print("用户%s提交失败，错误为:%s"%(user['account'],ret))
+                if user['email']:
+                    sendmessage.send(False,user['email'])
+        else:
+            print('not found form that need sign')
+    print('信息收集已全部完成')

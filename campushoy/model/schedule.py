@@ -1,6 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
-from .nightsign import *
+from .autosubmit import *
 
 
 schedudler = BackgroundScheduler()
